@@ -5,7 +5,7 @@ using UnityEngine;
 [CreateAssetMenu(menuName = "FPS/New Gun")]
 public class GunInfo : ItemInfo{
     public bool Hold;
-    public float damage;
+    public int damage;
     public float reloadTime;
     public int maxShots;
     public float shotTime;

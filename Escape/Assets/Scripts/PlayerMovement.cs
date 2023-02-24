@@ -1,14 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using TMPro;
 
 public class PlayerMovement : Damageable{
     public float moveSpeed = 5f;
     public int maxHealth = 20;
     public int currentHealth = 0;
     public Rigidbody2D rb;
+    [SerializeField] Transform shootPoint;
     public Camera cam;
+    public Animator anim;
+    public TMP_Text ammoText;
+
+    [SerializeField]
+    GameObject damageEffect;
+
+    public GameObject deathText;
+    public GameObject shopMenu;
+    [SerializeField] GameObject shopPrefab;
+
+    public Transform itemPos;
 
     [SerializeField] Color selectedColor;
     [SerializeField] Color unselectedColor;
@@ -61,23 +75,55 @@ public class PlayerMovement : Damageable{
         MoveCam();
 
         if(Input.GetKeyDown(KeyCode.E)){
-            Collider2D[] Colliders = Physics2D.OverlapCircleAll(transform.position, 3);
-            for(int i = 0; i < Colliders.Length; i++){
-                Debug.Log("0: " + Colliders[i].gameObject);
-                if(Colliders[i].GetComponent<ItemPickup>() != null){
-                    Debug.Log("1");
-                    PickUpItem(Colliders[i].GetComponent<ItemPickup>().Item, itemIndex);
+            if(shopMenu.activeSelf){
+                shopMenu.SetActive(false);
+            }else{
+                Collider2D[] Colliders = Physics2D.OverlapCircleAll(transform.position, 3);
+                for(int i = 0; i < Colliders.Length; i++){
+                    Debug.Log("0: " + Colliders[i].gameObject);
+                    if(Colliders[i].GetComponent<ItemPickup>() != null){
+                        Debug.Log("1");
+                        PickUpItem(Colliders[i].GetComponent<ItemPickup>().Item, itemIndex);
+                        Destroy(Colliders[i].gameObject);
+                    }else if(Colliders[i].GetComponent<Shop>() != null){
+                        shopMenu.SetActive(true);
+                        LoadShop(Colliders[i].GetComponent<Shop>());
+                    }else if(Colliders[i].GetComponent<HealthPotion>() != null){
+                        currentHealth += Colliders[i].GetComponent<HealthPotion>().healingAmount;
+                        healthBar.SetHealth(currentHealth);
+                        Destroy(Colliders[i].gameObject);
+                    }
                 }
             }
         }
+        anim.SetFloat("Speed", input.normalized.sqrMagnitude * moveSpeed/5f);
+        if(items[itemIndex] != null){
+            ammoText.text = items[itemIndex].GetAmmo();
+        }else{
+            ammoText.text = "";
+        }
     }
 
-    void PickUpItem(GameObject item, int _index){
+
+    void LoadShop(Shop shop){
+        foreach(Transform child in shopMenu.transform){
+            Destroy(child.gameObject);
+        }
+        for(int i = 0; i < shop.items.Length; i++){
+            GameObject obj = Instantiate(shopPrefab, Vector3.zero, Quaternion.identity, shopMenu.transform);
+            obj.GetComponent<ShopDisplay>().Init(shop.items[i]);
+        }
+    }
+
+    public void PickUpItem(GameObject item, int _index){
         Debug.Log("2");
         if(items[_index] != null){
             Destroy(items[_index].gameObject);
         }
-        currentItem = Instantiate(item, transform.position, Quaternion.identity, transform);
+        currentItem = Instantiate(item, itemPos.position, itemPos.rotation, transform);
+        if(currentItem.GetComponent<SingleShotGun>() != null){
+            currentItem.GetComponent<SingleShotGun>().shootPoint = shootPoint;
+        }
         items[_index] = currentItem.GetComponent<Item>();
 
     }
@@ -107,7 +153,7 @@ public class PlayerMovement : Damageable{
     }
 
     void FixedUpdate(){
-        rb.MovePosition(rb.position + input * moveSpeed * Time.fixedDeltaTime);
+        rb.MovePosition(rb.position + input.normalized * moveSpeed * Time.fixedDeltaTime);
 
         Vector2 lookDir = mousePos - new Vector2(transform.position.x, transform.position.y);
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
@@ -117,5 +163,41 @@ public class PlayerMovement : Damageable{
     public override void TakeDamage(int damage){
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
+        damageEffect.SetActive(true);
+        Invoke("DisableEffect", 0.2f);
+        if(currentHealth <= 0){
+            deathText.SetActive(true);
+            Invoke("LeaveGame", 2f);
+        }
+    }
+    void DisableEffect(){
+        damageEffect.SetActive(false);
+    }
+
+    void LeaveGame(){
+        SceneManager.LoadScene(0, LoadSceneMode.Single);
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
