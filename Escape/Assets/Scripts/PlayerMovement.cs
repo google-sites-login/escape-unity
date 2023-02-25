@@ -31,6 +31,7 @@ public class PlayerMovement : Damageable{
 
     [SerializeField] Item[] items;
     GameObject currentItem;
+    public GameObject starterItem;
 
     public HealthBar healthBar;
     public int itemIndex;
@@ -46,6 +47,9 @@ public class PlayerMovement : Damageable{
             i.color = unselectedColor;
         }
         EquipItem(0);
+        if(starterItem != null){
+            PickUpItem(starterItem, itemIndex);
+        }
     }
 
     void Update(){
@@ -59,7 +63,7 @@ public class PlayerMovement : Damageable{
             items[itemIndex].Reload();
         }
         if(items[itemIndex] != null && items[itemIndex].IsHold() && items[itemIndex] != null){
-            if(Input.GetMouseButton(0)){
+            if(Input.GetMouseButton(0) && !shopMenu.activeSelf){
                 items[itemIndex].Use();
             }
         }else{
@@ -89,9 +93,14 @@ public class PlayerMovement : Damageable{
                         shopMenu.SetActive(true);
                         LoadShop(Colliders[i].GetComponent<Shop>());
                     }else if(Colliders[i].GetComponent<HealthPotion>() != null){
-                        currentHealth += Colliders[i].GetComponent<HealthPotion>().healingAmount;
-                        healthBar.SetHealth(currentHealth);
+                        if(Colliders[i].GetComponent<ItemPickup>() == null){
+                            Debug.Log("Null");
+                        }
+                        PickUpItem(Colliders[i].GetComponent<ItemPickup>().Item, itemIndex);
                         Destroy(Colliders[i].gameObject);
+                        //currentHealth = Mathf.Clamp(currentHealth += Colliders[i].GetComponent<HealthPotion>().healingAmount, 0, maxHealth);
+                        //healthBar.SetHealth(currentHealth);
+                        //Destroy(Colliders[i].gameObject);
                     }
                 }
             }
@@ -109,7 +118,7 @@ public class PlayerMovement : Damageable{
         foreach(Transform child in shopMenu.transform){
             Destroy(child.gameObject);
         }
-        for(int i = 0; i < shop.items.Length; i++){
+        for(int i = 0; i < shop.items.Count; i++){
             GameObject obj = Instantiate(shopPrefab, Vector3.zero, Quaternion.identity, shopMenu.transform);
             obj.GetComponent<ShopDisplay>().Init(shop.items[i]);
         }
@@ -153,8 +162,12 @@ public class PlayerMovement : Damageable{
     }
 
     void FixedUpdate(){
-        rb.MovePosition(rb.position + input.normalized * moveSpeed * Time.fixedDeltaTime);
+        if(!shopMenu.activeSelf){
+            rb.MovePosition(rb.position + input.normalized * moveSpeed * Time.fixedDeltaTime);
+        }
+    }
 
+    void LateUpdate(){
         Vector2 lookDir = mousePos - new Vector2(transform.position.x, transform.position.y);
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);

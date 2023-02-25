@@ -93,10 +93,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 2903680327622055215}
-  - component: {fileID: 4417120469554690368}
   - component: {fileID: 5878504041293110941}
+  - component: {fileID: 368421960820730018}
   m_Layer: 0
-  m_Name: Health Potion
+  m_Name: Health Potion Pickup
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -118,19 +118,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &4417120469554690368
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2903680327622055213}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4989ed9253cfd4106be9c74db192b6ba, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  healingAmount: 10
 --- !u!61 &5878504041293110941
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -157,3 +144,16 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 1}
   m_EdgeRadius: 0
+--- !u!114 &368421960820730018
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2903680327622055213}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eba60d36f5ad242d297165a80a180120, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Item: {fileID: 4627739044476049644, guid: 72cb3e627240f4bd0a94df534f95a659, type: 3}
