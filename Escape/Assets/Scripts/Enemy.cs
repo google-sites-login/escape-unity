@@ -35,6 +35,7 @@ public class Enemy : Damageable{
     void Start(){
         player = FindObjectOfType<PlayerMovement>();
         currentHealth = maxHealth;
+        Invoke("Sound", Random.Range(5f, 10f));
     }
 
     void Update(){
@@ -66,6 +67,11 @@ public class Enemy : Damageable{
 
     void ResetAttack(){
         canAttack = true;
+    }
+
+    void Sound(){
+        GetComponent<AudioSource>().Play();
+        Invoke("Sound", Random.Range(5f, 10f));
     }
 
     void SpawnDroppings(){

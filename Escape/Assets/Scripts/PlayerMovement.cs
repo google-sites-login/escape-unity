@@ -63,11 +63,11 @@ public class PlayerMovement : Damageable{
             items[itemIndex].Reload();
         }
         if(items[itemIndex] != null && items[itemIndex].IsHold() && items[itemIndex] != null){
-            if(Input.GetMouseButton(0) && !shopMenu.activeSelf){
+            if(Input.GetMouseButton(0)){
                 items[itemIndex].Use();
             }
         }else{
-            if(items[itemIndex] != null && Input.GetMouseButtonDown(0)){
+            if(items[itemIndex] != null && Input.GetMouseButtonDown(0) && !shopMenu.activeSelf){
                 items[itemIndex].Use();
             }else if(items[itemIndex] != null && Input.GetMouseButtonUp(0)){
                 items[itemIndex].StopUse();
@@ -75,32 +75,25 @@ public class PlayerMovement : Damageable{
         }
         input.x = Input.GetAxisRaw("Horizontal");
         input.y = Input.GetAxisRaw("Vertical");
-        mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         MoveCam();
 
         if(Input.GetKeyDown(KeyCode.E)){
             if(shopMenu.activeSelf){
                 shopMenu.SetActive(false);
+                FindObjectOfType<AudioManager>().Play("Close");
             }else{
                 Collider2D[] Colliders = Physics2D.OverlapCircleAll(transform.position, 3);
                 for(int i = 0; i < Colliders.Length; i++){
                     Debug.Log("0: " + Colliders[i].gameObject);
                     if(Colliders[i].GetComponent<ItemPickup>() != null){
-                        Debug.Log("1");
                         PickUpItem(Colliders[i].GetComponent<ItemPickup>().Item, itemIndex);
                         Destroy(Colliders[i].gameObject);
+                        break;
                     }else if(Colliders[i].GetComponent<Shop>() != null){
                         shopMenu.SetActive(true);
+                        FindObjectOfType<AudioManager>().Play("Open");
                         LoadShop(Colliders[i].GetComponent<Shop>());
-                    }else if(Colliders[i].GetComponent<HealthPotion>() != null){
-                        if(Colliders[i].GetComponent<ItemPickup>() == null){
-                            Debug.Log("Null");
-                        }
-                        PickUpItem(Colliders[i].GetComponent<ItemPickup>().Item, itemIndex);
-                        Destroy(Colliders[i].gameObject);
-                        //currentHealth = Mathf.Clamp(currentHealth += Colliders[i].GetComponent<HealthPotion>().healingAmount, 0, maxHealth);
-                        //healthBar.SetHealth(currentHealth);
-                        //Destroy(Colliders[i].gameObject);
+                        break;
                     }
                 }
             }
@@ -144,6 +137,9 @@ public class PlayerMovement : Damageable{
         itemIndex = _index;
         if(items[itemIndex] != null){
             items[itemIndex].gameObject.SetActive(true);
+            if(items[itemIndex].GetAmmo() != ""){
+                FindObjectOfType<AudioManager>().Play("SwitchWeapon");
+            }
         }
         ImageBackgrounds[itemIndex].color = selectedColor;
 
@@ -168,6 +164,7 @@ public class PlayerMovement : Damageable{
     }
 
     void LateUpdate(){
+        mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         Vector2 lookDir = mousePos - new Vector2(transform.position.x, transform.position.y);
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
@@ -179,8 +176,11 @@ public class PlayerMovement : Damageable{
         damageEffect.SetActive(true);
         Invoke("DisableEffect", 0.2f);
         if(currentHealth <= 0){
+            FindObjectOfType<AudioManager>().Play("Die");
             deathText.SetActive(true);
             Invoke("LeaveGame", 2f);
+        }else{
+            FindObjectOfType<AudioManager>().Play("Oof");
         }
     }
     void DisableEffect(){

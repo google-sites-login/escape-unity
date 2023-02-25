@@ -38,7 +38,7 @@ public class SingleShotGun : Gun{
 
     void Shoot(){
         shotsLeft -= 1;
-        Debug.Log("Shoot");
+        FindObjectOfType<AudioManager>().Play("Shoot");
         GameObject bullet = Instantiate(prefab, shootPoint.position, shootPoint.rotation);
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         rb.AddForce(shootPoint.up * 20, ForceMode2D.Impulse);

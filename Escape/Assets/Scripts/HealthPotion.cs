@@ -10,6 +10,7 @@ public class HealthPotion : Item{
             player = FindObjectOfType<PlayerMovement>();
         }
         player.currentHealth = Mathf.Clamp(player.currentHealth += ((PotionInfo)itemInfo).healingAmount, 0, player.maxHealth);
+        FindObjectOfType<AudioManager>().Play("Drink");
         player.healthBar.SetHealth(player.currentHealth);
         Destroy(gameObject);
     }
