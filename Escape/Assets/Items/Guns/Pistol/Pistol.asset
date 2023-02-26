@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: Pistol
   m_EditorClassIdentifier: 
   itemName: Pistol
+  icon: {fileID: 21300000, guid: 80fbdfa761444404aa0dc1548d8c7fcc, type: 3}
   Hold: 0
   damage: 10
   reloadTime: 1.5

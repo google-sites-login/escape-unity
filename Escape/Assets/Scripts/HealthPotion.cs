@@ -12,6 +12,7 @@ public class HealthPotion : Item{
         player.currentHealth = Mathf.Clamp(player.currentHealth += ((PotionInfo)itemInfo).healingAmount, 0, player.maxHealth);
         FindObjectOfType<AudioManager>().Play("Drink");
         player.healthBar.SetHealth(player.currentHealth);
+        player.itemImages[player.itemIndex].sprite = null;
         Destroy(gameObject);
     }
     public override void Reload(){

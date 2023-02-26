@@ -5,5 +5,5 @@ using UnityEngine.UI;
 
 public class ItemInfo : ScriptableObject{
     public string itemName;
-    public Image icon;
+    public Sprite icon;
 }

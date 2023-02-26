@@ -25,14 +25,6 @@ public class AudioManager : MonoBehaviour{
         }
     }
 
-    void Start(){
-        foreach(Sound s in sounds){
-            if(s.playOnAwake){
-                Play(s.name);
-            }
-        }
-    }
-
     public void ChangeVolume(float volume){
         foreach(Sound s in sounds){
             s.source.volume = s.volume * volume;
@@ -65,6 +57,12 @@ public class AudioManager : MonoBehaviour{
             foreach(Sound s in sounds){
                 Stop(s.name);
             }
+        }else{
+            //foreach(Sound s in sounds){
+            //    if(s.playOnAwake){
+            //        Play(s.name);
+            //    }
+            //}
         }
     }
 }
@@ -80,7 +78,6 @@ public class Sound {
     public float pitch;
 
     public bool loop;
-    public bool playOnAwake;
 
     [HideInInspector]
     public AudioSource source;

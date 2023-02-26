@@ -17,9 +17,14 @@ public class Enemy : Damageable{
     public float damageDelay = 2f;
     public int currentHealth = 0;
 
+    public GameObject deathObject;
+
     public Color baseColour;
     public Color damagedColour;
     public SpriteRenderer sprite;
+
+    public AudioSource die;
+    public AudioSource grrr;
 
     [Header("References")]
     public Rigidbody2D rb;
@@ -70,11 +75,12 @@ public class Enemy : Damageable{
     }
 
     void Sound(){
-        GetComponent<AudioSource>().Play();
+        grrr.Play();
         Invoke("Sound", Random.Range(5f, 10f));
     }
 
     void SpawnDroppings(){
+        Instantiate(deathObject, transform.position, Quaternion.identity);
         for(int i = 0; i < droppings.Length; i++){
             if(Random.Range(0f, 1f) < droppings[i].chance){
                 Instantiate(droppings[i].prefab, transform.position, Quaternion.identity);
@@ -86,6 +92,7 @@ public class Enemy : Damageable{
         sprite.color = damagedColour;
         Invoke("ResetColour", 0.2f);
         if(currentHealth <= 0){
+            FindObjectOfType<AudioManager>().Play("ZombieDie");
             SpawnDroppings();
             Destroy(gameObject);
         }

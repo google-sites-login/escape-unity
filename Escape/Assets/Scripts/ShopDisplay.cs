@@ -20,6 +20,9 @@ public class ShopDisplay : MonoBehaviour{
     }
 
     public void BuyItem(){
-        player.PickUpItem(item.item, player.itemIndex);
+        if(player.currentBlood > item.price){
+            player.currentBlood -= item.price;
+            player.PickUpItem(item.item, player.itemIndex);
+        }
     }
 }

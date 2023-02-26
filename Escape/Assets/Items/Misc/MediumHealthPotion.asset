@@ -13,4 +13,5 @@ MonoBehaviour:
   m_Name: MediumHealthPotion
   m_EditorClassIdentifier: 
   itemName: Medium Health Potion
+  icon: {fileID: 21300000, guid: 96fa9dd9f28d6480a864850c69dfd767, type: 3}
   healingAmount: 10

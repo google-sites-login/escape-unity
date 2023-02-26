@@ -15,6 +15,8 @@ public class PlayerMovement : Damageable{
     public Animator anim;
     public TMP_Text ammoText;
 
+    public int currentBlood;
+
     [SerializeField]
     GameObject damageEffect;
 
@@ -27,7 +29,8 @@ public class PlayerMovement : Damageable{
     [SerializeField] Color selectedColor;
     [SerializeField] Color unselectedColor;
     [SerializeField] Image[] ImageBackgrounds;
-    [SerializeField] Image[] itemImages;
+    public Image[] itemImages;
+    public TMP_Text bloodText;
 
     [SerializeField] Item[] items;
     GameObject currentItem;
@@ -36,6 +39,7 @@ public class PlayerMovement : Damageable{
     public HealthBar healthBar;
     public int itemIndex;
     int previousItemIndex = -1;
+    bool dead = false;
 
     Vector2 input;
     Vector2 mousePos;
@@ -50,9 +54,13 @@ public class PlayerMovement : Damageable{
         if(starterItem != null){
             PickUpItem(starterItem, itemIndex);
         }
+        FindObjectOfType<AudioManager>().Play("SpawnIn");
+        FindObjectOfType<AudioManager>().Play("Music");
     }
 
     void Update(){
+        if(dead)
+            return;
         for(int i = 0; i < items.Length; i++){
             if(Input.GetKeyDown((i + 1).ToString())){
                 EquipItem(i);
@@ -104,6 +112,7 @@ public class PlayerMovement : Damageable{
         }else{
             ammoText.text = "";
         }
+        bloodText.text = currentBlood.ToString();
     }
 
 
@@ -123,6 +132,7 @@ public class PlayerMovement : Damageable{
             Destroy(items[_index].gameObject);
         }
         currentItem = Instantiate(item, itemPos.position, itemPos.rotation, transform);
+        itemImages[_index].sprite = currentItem.GetComponent<Item>().itemInfo.icon;
         if(currentItem.GetComponent<SingleShotGun>() != null){
             currentItem.GetComponent<SingleShotGun>().shootPoint = shootPoint;
         }
@@ -158,12 +168,16 @@ public class PlayerMovement : Damageable{
     }
 
     void FixedUpdate(){
+        if(dead)
+            return;
         if(!shopMenu.activeSelf){
             rb.MovePosition(rb.position + input.normalized * moveSpeed * Time.fixedDeltaTime);
         }
     }
 
     void LateUpdate(){
+        if(dead)
+            return;
         mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
         Vector2 lookDir = mousePos - new Vector2(transform.position.x, transform.position.y);
         float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
@@ -171,6 +185,8 @@ public class PlayerMovement : Damageable{
     }
 
     public override void TakeDamage(int damage){
+        if(dead)
+            return;
         currentHealth -= damage;
         healthBar.SetHealth(currentHealth);
         damageEffect.SetActive(true);
@@ -178,6 +194,7 @@ public class PlayerMovement : Damageable{
         if(currentHealth <= 0){
             FindObjectOfType<AudioManager>().Play("Die");
             deathText.SetActive(true);
+            dead = true;
             Invoke("LeaveGame", 2f);
         }else{
             FindObjectOfType<AudioManager>().Play("Oof");
