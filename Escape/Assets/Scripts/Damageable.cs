@@ -3,5 +3,5 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Damageable : MonoBehaviour{
-     public virtual void TakeDamage(int damage){}
+     public virtual void TakeDamage(float damage){}
 }

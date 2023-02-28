@@ -13,9 +13,9 @@ public class Enemy : Damageable{
     [Header("Stats")]
     public float moveSpeed = 5f;
     public int maxHealth = 20;
-    public int damage = 5;
+    public float damage = 5;
     public float damageDelay = 2f;
-    public int currentHealth = 0;
+    public float currentHealth = 0;
 
     public GameObject deathObject;
 
@@ -59,7 +59,7 @@ public class Enemy : Damageable{
     }
 
     void CheckCollisions(){
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 1);
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, 0.5f);
 
         for(int i = 0; i < colliders.Length; i++){
             if(colliders[i].GetComponent<PlayerMovement>() != null && canAttack){
@@ -87,7 +87,7 @@ public class Enemy : Damageable{
             }
         }
     }
-    public override void TakeDamage(int damage){
+    public override void TakeDamage(float damage){
         currentHealth -= damage;
         sprite.color = damagedColour;
         Invoke("ResetColour", 0.2f);

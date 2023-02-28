@@ -2,15 +2,17 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using TMPro;
 
-public class MenuManager : MonoBehaviour
-{
+public class MenuManager : MonoBehaviour{
     public static MenuManager Instance;
+    public TMP_Text highscoreText;
 
     [SerializeField] Menu[] menus;
 
     void Awake(){
         Instance = this;
+        highscoreText.text = "Highscore: " + PlayerPrefs.GetInt("Highscore").ToString();
     }
 
     public void OpenMenu(string menuName)

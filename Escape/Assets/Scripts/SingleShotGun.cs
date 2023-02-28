@@ -42,7 +42,7 @@ public class SingleShotGun : Gun{
         GameObject bullet = Instantiate(prefab, shootPoint.position, shootPoint.rotation);
         Rigidbody2D rb = bullet.GetComponent<Rigidbody2D>();
         rb.AddForce(shootPoint.up * 20, ForceMode2D.Impulse);
-        bullet.GetComponent<Bullet>().damage = ((GunInfo)itemInfo).damage;
+        bullet.GetComponent<Bullet>().damage = ((GunInfo)itemInfo).damage * FindObjectOfType<PlayerMovement>().damageMultiplier;
         bullet.GetComponent<Bullet>().owner = transform.parent.GetComponent<Damageable>();
     }
     void ResetShoot(){

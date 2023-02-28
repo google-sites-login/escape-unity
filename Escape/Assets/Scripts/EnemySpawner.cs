@@ -13,17 +13,28 @@ public class EnemySpawner : MonoBehaviour{
     [SerializeField] SpawnEnemy[] enemies;
     [SerializeField] Transform player;
     [SerializeField] float spawnRange;
+    [SerializeField] float minDST;
 
     void Start(){
-        InvokeRepeating("SpawnEnemy", rate, rate);
+        InvokeRepeating("SpawnEnemys", rate, rate);
     }
 
-    void SpawnEnemy(){
+    void SpawnEnemys(){
         foreach(SpawnEnemy enemy in enemies){
             if(Random.Range(0f, 1f) < enemy.chance){
-                Enemy enemyObj = Instantiate(enemy.prefab, player.position + new Vector3(Random.Range(-spawnRange, spawnRange), Random.Range(-spawnRange, spawnRange), 0), Quaternion.identity).GetComponent<Enemy>();
-                enemyObj.target = player;
+                SpawnEnemy(enemy);
             }
+        }
+    }
+
+    void SpawnEnemy(SpawnEnemy enemy){
+        Vector3 spawnPos = player.position + new Vector3(Random.Range(-spawnRange, spawnRange), Random.Range(-spawnRange, spawnRange), 0);
+        if(Vector3.Distance(player.position, spawnPos) < minDST){
+            SpawnEnemy(enemy);
+            return;
+        }else{
+            Enemy enemyObj = Instantiate(enemy.prefab, spawnPos, Quaternion.identity).GetComponent<Enemy>();
+            enemyObj.target = player;
         }
     }
 }

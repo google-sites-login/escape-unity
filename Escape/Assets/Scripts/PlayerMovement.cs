@@ -8,12 +8,15 @@ using TMPro;
 public class PlayerMovement : Damageable{
     public float moveSpeed = 5f;
     public int maxHealth = 20;
-    public int currentHealth = 0;
+    public float currentHealth = 0;
     public Rigidbody2D rb;
     [SerializeField] Transform shootPoint;
     public Camera cam;
     public Animator anim;
     public TMP_Text ammoText;
+
+    public float currentTime;
+    public TMP_Text timeText;
 
     public int currentBlood;
 
@@ -32,6 +35,8 @@ public class PlayerMovement : Damageable{
     public Image[] itemImages;
     public TMP_Text bloodText;
 
+    float speedMultiplier = 1f;
+
     [SerializeField] Item[] items;
     GameObject currentItem;
     public GameObject starterItem;
@@ -39,7 +44,12 @@ public class PlayerMovement : Damageable{
     public HealthBar healthBar;
     public int itemIndex;
     int previousItemIndex = -1;
+    public float damageMultiplier = 1f;
     bool dead = false;
+
+    bool drunk = false;
+
+    public Transform drunkPos;
 
     Vector2 input;
     Vector2 mousePos;
@@ -67,6 +77,7 @@ public class PlayerMovement : Damageable{
                 break;
             }
         }
+
         if(Input.GetKeyDown(KeyCode.R) && items[itemIndex] != null){
             items[itemIndex].Reload();
         }
@@ -81,8 +92,16 @@ public class PlayerMovement : Damageable{
                 items[itemIndex].StopUse();
             }
         }
-        input.x = Input.GetAxisRaw("Horizontal");
-        input.y = Input.GetAxisRaw("Vertical");
+        if(drunk){
+            if(Vector2.Distance(drunkPos.position, transform.position) < 2){
+                drunkPos.position = new Vector3(transform.position.x + Random.Range(-2f, 2f), transform.position.y + Random.Range(-2f, 2f), 0);
+            }
+            input.x = drunkPos.position.x - transform.position.x;
+            input.y = drunkPos.position.y - transform.position.y;
+        }else{
+            input.x = Input.GetAxisRaw("Horizontal");
+            input.y = Input.GetAxisRaw("Vertical");
+        }
         MoveCam();
 
         if(Input.GetKeyDown(KeyCode.E)){
@@ -113,6 +132,36 @@ public class PlayerMovement : Damageable{
             ammoText.text = "";
         }
         bloodText.text = currentBlood.ToString();
+        currentTime += Time.deltaTime;
+        timeText.text = currentTime.ToString("F2");
+    }
+
+    public void StartSpeed(float _speedMultiplier, float speedTime){
+        Debug.Log("Start speed");
+        speedMultiplier = _speedMultiplier;
+        Invoke("DisableSpeed", speedTime);
+    }
+
+    void DisableSpeed(){
+        speedMultiplier = 1f;
+    }
+
+    public void StartDrunk(float nauseaTime, float damageTime, float _damageMultiplier){
+        drunkPos.position = new Vector3(transform.position.x + Random.Range(-2f, 2f), transform.position.y + Random.Range(-2f, 2f), 0);
+        drunk = true;
+        StartCoroutine(DisableDrunk(_damageMultiplier, damageTime, nauseaTime));
+    }
+
+    IEnumerator DisableDrunk(float _damageMultiplier, float damageTime, float delayTime){
+        yield return new WaitForSeconds(delayTime);
+        drunk = false;
+        damageMultiplier = _damageMultiplier;
+        StartCoroutine(DisableDamage(damageTime));
+    }
+
+    IEnumerator DisableDamage(float delayTime){
+        yield return new WaitForSeconds(delayTime);
+        damageMultiplier = 1f;
     }
 
 
@@ -171,7 +220,7 @@ public class PlayerMovement : Damageable{
         if(dead)
             return;
         if(!shopMenu.activeSelf){
-            rb.MovePosition(rb.position + input.normalized * moveSpeed * Time.fixedDeltaTime);
+            rb.MovePosition(rb.position + input.normalized * moveSpeed * Time.fixedDeltaTime * speedMultiplier);
         }
     }
 
@@ -184,7 +233,7 @@ public class PlayerMovement : Damageable{
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 
-    public override void TakeDamage(int damage){
+    public override void TakeDamage(float damage){
         if(dead)
             return;
         currentHealth -= damage;
@@ -195,6 +244,9 @@ public class PlayerMovement : Damageable{
             FindObjectOfType<AudioManager>().Play("Die");
             deathText.SetActive(true);
             dead = true;
+            if(PlayerPrefs.GetInt("Highscore") < currentTime){
+                PlayerPrefs.SetInt("Highscore", (int)currentTime);
+            }
             Invoke("LeaveGame", 2f);
         }else{
             FindObjectOfType<AudioManager>().Play("Oof");

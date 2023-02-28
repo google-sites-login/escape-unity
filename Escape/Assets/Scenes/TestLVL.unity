@@ -133,6 +133,37 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 2756713089367652296, guid: 58e73e2716d4c4f29a811694dbf0652d, type: 3}
   m_PrefabInstance: {fileID: 2756713088527571731}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &962095979
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 962095980}
+  m_Layer: 0
+  m_Name: DrunkPos
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &962095980
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 962095979}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 7
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1075499216
 GameObject:
   m_ObjectHideFlags: 0
@@ -367,7 +398,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_RenderShadows: 1
   m_RequiresDepthTextureOption: 2
-  m_RequiresOpaqueTextureOption: 2
+  m_RequiresOpaqueTextureOption: 1
   m_CameraType: 0
   m_Cameras: []
   m_RendererIndex: -1
@@ -559,10 +590,6 @@ MonoBehaviour:
     spawnChance: 1
     maxPerChunk: 3
     objectSize: 1
-  - spawnObject: {fileID: 2903680327622055213, guid: 26a2890fb9055454f9b44f8965e52992, type: 3}
-    spawnChance: 0.2
-    maxPerChunk: 2
-    objectSize: 1
 --- !u!4 &1861664041
 Transform:
   m_ObjectHideFlags: 0
@@ -590,16 +617,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: da9c7eb335a364d55ad60b7558c146f2, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rate: 3
+  rate: 1
   enemies:
   - prefab: {fileID: 2603460683026305526, guid: 82cf08a665f844695ac43649125e724b, type: 3}
-    chance: 0.9
-  - prefab: {fileID: 2603460683026305526, guid: 82cf08a665f844695ac43649125e724b, type: 3}
-    chance: 0.9
-  - prefab: {fileID: 2603460683026305526, guid: 82cf08a665f844695ac43649125e724b, type: 3}
-    chance: 0.9
+    chance: 0.5
+  - prefab: {fileID: 2603460683026305526, guid: 213348511867144688ef15cff71c1601, type: 3}
+    chance: 0.1
   player: {fileID: 842443995}
-  spawnRange: 30
+  spawnRange: 50
+  minDST: 30
 --- !u!1001 &225964325530716625
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -760,6 +786,10 @@ PrefabInstance:
       propertyPath: cam
       value: 
       objectReference: {fileID: 1075499219}
+    - target: {fileID: 2756713089367652303, guid: 58e73e2716d4c4f29a811694dbf0652d, type: 3}
+      propertyPath: drunkPos
+      value: 
+      objectReference: {fileID: 962095980}
     - target: {fileID: 2756713089367652303, guid: 58e73e2716d4c4f29a811694dbf0652d, type: 3}
       propertyPath: moveSpeed
       value: 5

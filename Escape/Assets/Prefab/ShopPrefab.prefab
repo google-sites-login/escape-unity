@@ -51,10 +51,16 @@ MonoBehaviour:
     price: 5
     chance: 1
   - item: {fileID: 8260627811283053286, guid: 8cef253abdee64f089c60414fe54c0b4, type: 3}
-    price: 50
+    price: 20
     chance: 0.2
   - item: {fileID: 4627739044476049644, guid: 72cb3e627240f4bd0a94df534f95a659, type: 3}
     price: 10
+    chance: 0.3
+  - item: {fileID: 4627739044476049644, guid: 23fc6055baea147f484d1e48afe45b3e, type: 3}
+    price: 2
+    chance: 0.3
+  - item: {fileID: 4627739044476049644, guid: 85df49ce08513409faf5a24ebff94292, type: 3}
+    price: 5
     chance: 0.5
   items: []
 --- !u!61 &-557042068705702810

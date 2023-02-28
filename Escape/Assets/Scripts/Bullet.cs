@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Bullet : MonoBehaviour{
     public Damageable owner;
-    public int damage;
+    public float damage;
 
     void Start(){
         Invoke("DestroyBullet", 5f);

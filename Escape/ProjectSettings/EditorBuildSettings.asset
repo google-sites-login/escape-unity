@@ -12,4 +12,5 @@ EditorBuildSettings:
     path: Assets/Scenes/TestLVL.unity
     guid: bb1652fbe57a44606a643a66caee513f
   m_configObjects:
+    com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: de30804baf5dd465b9b7b544a9b415af, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: c2dcdeaae84c04630ad59015e58d9d9d, type: 2}
