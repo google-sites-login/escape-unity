@@ -3,48 +3,44 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 using TMPro;
 
 public class PlayerMovement : Damageable{
+    [Header("Player stats")]
     public float moveSpeed = 5f;
     public int maxHealth = 20;
     public float currentHealth = 0;
+    public int currentBlood;
+    public float currentTime;
+
+    [Header("References")]
+    public Joystick joystick;
+    public Joystick weaponJoystick;
     public Rigidbody2D rb;
     [SerializeField] Transform shootPoint;
     public Camera cam;
     public Animator anim;
     public TMP_Text ammoText;
-
-    public float currentTime;
     public TMP_Text timeText;
-
-    public int currentBlood;
-
-    [SerializeField]
-    GameObject damageEffect;
-
+    public HealthBar healthBar;
+    [SerializeField] GameObject damageEffect;
     public GameObject deathText;
     public GameObject shopMenu;
     [SerializeField] GameObject shopPrefab;
-
     public Transform itemPos;
-
     [SerializeField] Color selectedColor;
     [SerializeField] Color unselectedColor;
     [SerializeField] Image[] ImageBackgrounds;
     public Image[] itemImages;
     public TMP_Text bloodText;
-
     float speedMultiplier = 1f;
-
     [SerializeField] Item[] items;
     GameObject currentItem;
     public GameObject starterItem;
-
-    public HealthBar healthBar;
     public int itemIndex;
     int previousItemIndex = -1;
-    public float damageMultiplier = 1f;
+    [HideInInspector] public float damageMultiplier = 1f;
     bool dead = false;
 
     bool drunk = false;
@@ -68,6 +64,15 @@ public class PlayerMovement : Damageable{
         FindObjectOfType<AudioManager>().Play("Music");
     }
 
+    public void ReloadButton(){
+        if(items[itemIndex] != null){
+            items[itemIndex].Reload();
+        }
+    }
+    public void PickupButton(){
+        Interact();
+    }
+
     void Update(){
         if(dead)
             return;
@@ -82,16 +87,32 @@ public class PlayerMovement : Damageable{
             items[itemIndex].Reload();
         }
         if(items[itemIndex] != null && items[itemIndex].IsHold() && items[itemIndex] != null){
-            if(Input.GetMouseButton(0)){
+            //if(SystemInfo.deviceType == DeviceType.Handheld){
+            if(Mathf.Abs(weaponJoystick.Horizontal) > 0.2 || Mathf.Abs(weaponJoystick.Vertical) > 0.2){
                 items[itemIndex].Use();
             }
+            //}else{
+            //    if(Input.GetMouseButton(0)){
+            //        items[itemIndex].Use();
+            //    }
+            //}
         }else{
-            if(items[itemIndex] != null && Input.GetMouseButtonDown(0) && !shopMenu.activeSelf){
-                items[itemIndex].Use();
+            if(items[itemIndex] != null && !shopMenu.activeSelf){
+                //if(SystemInfo.deviceType == DeviceType.Handheld){
+                    if(Mathf.Abs(weaponJoystick.Horizontal) > 0.2 || Mathf.Abs(weaponJoystick.Vertical) > 0.2){
+                        items[itemIndex].Use();
+                    }
+                //}else{
+                //    if(Input.GetMouseButtonDown(0)){
+                //        items[itemIndex].Use();
+                //    }
+                //}
             }else if(items[itemIndex] != null && Input.GetMouseButtonUp(0)){
                 items[itemIndex].StopUse();
             }
         }
+
+
         if(drunk){
             if(Vector2.Distance(drunkPos.position, transform.position) < 2){
                 drunkPos.position = new Vector3(transform.position.x + Random.Range(-2f, 2f), transform.position.y + Random.Range(-2f, 2f), 0);
@@ -99,31 +120,22 @@ public class PlayerMovement : Damageable{
             input.x = drunkPos.position.x - transform.position.x;
             input.y = drunkPos.position.y - transform.position.y;
         }else{
-            input.x = Input.GetAxisRaw("Horizontal");
-            input.y = Input.GetAxisRaw("Vertical");
+            //if(SystemInfo.deviceType == DeviceType.Handheld){
+                input.x = joystick.Horizontal;
+                input.y = joystick.Vertical;
+            //}else{
+            //    joystick.gameObject.SetActive(false);
+            //    input.x = Input.GetAxisRaw("Horizontal");
+            //    input.y = Input.GetAxisRaw("Vertical");
+            //}
         }
+
+
+
         MoveCam();
 
         if(Input.GetKeyDown(KeyCode.E)){
-            if(shopMenu.activeSelf){
-                shopMenu.SetActive(false);
-                FindObjectOfType<AudioManager>().Play("Close");
-            }else{
-                Collider2D[] Colliders = Physics2D.OverlapCircleAll(transform.position, 3);
-                for(int i = 0; i < Colliders.Length; i++){
-                    Debug.Log("0: " + Colliders[i].gameObject);
-                    if(Colliders[i].GetComponent<ItemPickup>() != null){
-                        PickUpItem(Colliders[i].GetComponent<ItemPickup>().Item, itemIndex);
-                        Destroy(Colliders[i].gameObject);
-                        break;
-                    }else if(Colliders[i].GetComponent<Shop>() != null){
-                        shopMenu.SetActive(true);
-                        FindObjectOfType<AudioManager>().Play("Open");
-                        LoadShop(Colliders[i].GetComponent<Shop>());
-                        break;
-                    }
-                }
-            }
+            Interact();
         }
         anim.SetFloat("Speed", input.normalized.sqrMagnitude * moveSpeed/5f);
         if(items[itemIndex] != null){
@@ -134,6 +146,28 @@ public class PlayerMovement : Damageable{
         bloodText.text = currentBlood.ToString();
         currentTime += Time.deltaTime;
         timeText.text = currentTime.ToString("F2");
+    }
+
+    void Interact(){
+        if(shopMenu.activeSelf){
+            shopMenu.SetActive(false);
+            FindObjectOfType<AudioManager>().Play("Close");
+        }else{
+            Collider2D[] Colliders = Physics2D.OverlapCircleAll(transform.position, 3);
+            for(int i = 0; i < Colliders.Length; i++){
+                Debug.Log("0: " + Colliders[i].gameObject);
+                if(Colliders[i].GetComponent<ItemPickup>() != null){
+                    PickUpItem(Colliders[i].GetComponent<ItemPickup>().Item, itemIndex);
+                    Destroy(Colliders[i].gameObject);
+                    break;
+                }else if(Colliders[i].GetComponent<Shop>() != null){
+                    shopMenu.SetActive(true);
+                    FindObjectOfType<AudioManager>().Play("Open");
+                    LoadShop(Colliders[i].GetComponent<Shop>());
+                    break;
+                }
+            }
+        }
     }
 
     public void StartSpeed(float _speedMultiplier, float speedTime){
@@ -227,10 +261,21 @@ public class PlayerMovement : Damageable{
     void LateUpdate(){
         if(dead)
             return;
-        mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
-        Vector2 lookDir = mousePos - new Vector2(transform.position.x, transform.position.y);
-        float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
-        transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        //if(SystemInfo.deviceType == DeviceType.Handheld){
+            //foreach (Touch touch in Input.touches) {
+            //    if(joystick.touch != touch.fingerId){
+            //        mousePos = cam.ScreenToWorldPoint(touch.position);
+            //        break;
+            //    }
+            //}
+        //}else{
+        //    mousePos = cam.ScreenToWorldPoint(Input.mousePosition);
+        //}
+        if(Mathf.Abs(weaponJoystick.Horizontal) > 0.2 || Mathf.Abs(weaponJoystick.Vertical) > 0.2){
+            Vector2 lookDir = weaponJoystick.Direction;
+            float angle = Mathf.Atan2(lookDir.y, lookDir.x) * Mathf.Rad2Deg - 90f;
+            transform.rotation = Quaternion.Euler(0f, 0f, angle);
+        }
     }
 
     public override void TakeDamage(float damage){
